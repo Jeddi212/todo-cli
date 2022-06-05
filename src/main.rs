@@ -1,5 +1,5 @@
-use std::{collections::HashMap, io::Read};
-use std::str::FromStr;
+use core::panic;
+use std::collections::HashMap;
 
 fn main() {
     // Input arguments from cli
@@ -39,46 +39,34 @@ impl Todo {
         self.map.insert(key, true);
     }
 
-    fn save(self) -> Result<(), std::io::Error> {
-        let mut content = String::new();
-        for (k, v) in self.map {
-            let record = format!("{}\t{}\n", k, v);
-            content.push_str(&record);
-        }
-        std::fs::write("db.txt", content)
+    fn save(self) -> Result<(), Box<dyn std::error::Error>> {
+        // open db.json
+        let f = std::fs::OpenOptions::new()
+            .write(true)
+            .create(true)
+            .open("db.json")?;
+        
+        // write to file with serde
+        serde_json::to_writer_pretty(f, &self.map)?;
+        Ok(())
     }
 
     fn new() -> Result<Todo, std::io::Error>{
-        let mut f = std::fs::OpenOptions::new()
-            .write(true).create(true).read(true).open("db.txt")?;
-        
-        let mut content = String::new();
-        f.read_to_string(&mut content)?;
+        // open db.json
+        let f = std::fs::OpenOptions::new()
+            .write(true)
+            .create(true)
+            .read(true)
+            .open("db.json")?;
 
-        let map: HashMap<String, bool> = content
-            .lines()
-            .map(|line| line.splitn(2, '\t').collect::<Vec<&str>>())
-            .map(|v| (v[0], v[1]))
-            .map(|(k, v)| (String::from(k), bool::from_str(v).unwrap()))
-            .collect();
-        Ok(Todo { map })
-
-        /* Another approcah
-            // allocate an empty HashMap
-            let mut map = HashMap::new();
-            
-            // loop over each lines of the file
-            for entries in content.lines() {
-                // split and bind values
-                let mut values = entries.split('\t');
-                let key = values.next().expect("No Key");
-                let val = values.next().expect("No Value");
-                // insert them into HashMap
-                map.insert(String::from(key), bool::from_str(val).unwrap());
-            }
-            // Return Ok
-            Ok(Todo { map })
-        */
+        // serialize json as HashMap
+        match serde_json::from_reader(f) {
+            Ok(map) => Ok(Todo { map }),
+            Err(e) if e.is_eof() => Ok(Todo {
+                map: HashMap::new(),
+            }),
+            Err(why) => panic!("An error occured: {}", why),
+        }
     }
 
     fn complete(&mut self, key: &String) -> Option<()> {
