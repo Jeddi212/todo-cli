@@ -6,4 +6,4 @@ Todo list cli using rust
 <hr>
 
 ### Example usage
-`cargo run -- hello world`
+`cargo run -- add "hello world"`

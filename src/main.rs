@@ -1,4 +1,5 @@
-use std::{collections::HashMap, io::Read, hash::Hash};
+use std::{collections::HashMap, io::Read};
+use std::str::FromStr;
 
 fn main() {
     // Input arguments from cli
@@ -7,9 +8,7 @@ fn main() {
 
     println!("{:?}, {:?}", action, item);
 
-    let mut todo = Todo{
-        map: HashMap::new(),
-    };
+    let mut todo = Todo::new().expect("Initialisation of db failed");
 
     if action == "add" {
         todo.insert(item);
