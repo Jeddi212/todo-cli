@@ -1,3 +1,2 @@
-save	true
-hello	true
-Save the world	true
+make coffee	true
+code rust	true
