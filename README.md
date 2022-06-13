@@ -6,8 +6,10 @@ Todo list cli using rust
 <hr>
 
 ### Example usage
-`cargo run -- add "make coffee"`
-`cargo run -- add "code rust"`
-`cargo run -- complete "make coffee"`
-`cat db.txt`
-`cargo run -- add "make coffee"`
+```
+cargo run -- add "make coffee"
+cargo run -- add "code rust"
+cargo run -- complete "make coffee"
+cat db.txt
+cargo run -- add "make coffee"
+```
